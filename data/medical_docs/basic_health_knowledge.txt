@@ -1,0 +1,14 @@
+Fever:
+Fever is a temporary rise in body temperature. Common causes include viral infection, bacterial infection, dehydration, or inflammation. A doctor should be consulted if fever is very high, lasts more than three days, or occurs with breathing difficulty, confusion, severe weakness, rash, or chest pain.
+
+Dengue:
+Dengue is a mosquito-borne viral infection. Common symptoms include high fever, headache, body pain, joint pain, rash, nausea, and weakness. Warning signs include severe abdominal pain, persistent vomiting, bleeding, difficulty breathing, and extreme weakness. Medical consultation is important.
+
+Diabetes:
+Diabetes is a condition where blood sugar levels remain high. Common symptoms include frequent urination, increased thirst, fatigue, slow wound healing, and unexplained weight changes. Management includes medical advice, regular monitoring, healthy diet, and physical activity.
+
+Anemia:
+Anemia happens when the body does not have enough healthy red blood cells or hemoglobin. Symptoms may include tiredness, weakness, pale skin, dizziness, and shortness of breath. Common causes include iron deficiency, vitamin deficiency, or chronic illness.
+
+Thyroid:
+Thyroid imbalance can affect metabolism, weight, mood, energy levels, heart rate, and temperature tolerance. Thyroid test results should be interpreted by a healthcare professional.
