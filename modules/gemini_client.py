@@ -17,8 +17,7 @@ if not api_key:
 
 genai.configure(api_key=api_key)
 
-gemini_model = genai.GenerativeModel("gemini-2.0-flash")
-
+gemini_model = genai.GenerativeModel("gemini-2.0-flash-lite")
 def generate_response(prompt):
 
     try:
