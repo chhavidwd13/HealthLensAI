@@ -17,7 +17,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- CUSTOM UI CSS ----------------
 st.markdown("""
 <style>
 .stApp {
@@ -40,7 +39,7 @@ st.markdown("""
 .hero-card {
     padding: 34px;
     border-radius: 28px;
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.78);
     backdrop-filter: blur(16px);
     box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
     border: 1px solid rgba(255,255,255,0.7);
@@ -63,17 +62,31 @@ st.markdown("""
 .glass-card {
     padding: 24px;
     border-radius: 24px;
-    background: rgba(255,255,255,0.78);
+    background: rgba(255,255,255,0.82);
     backdrop-filter: blur(14px);
     box-shadow: 0 16px 35px rgba(15, 23, 42, 0.10);
     border: 1px solid rgba(255,255,255,0.75);
-    min-height: 160px;
-    transition: 0.2s ease-in-out;
+    min-height: 150px;
+    margin-bottom: 18px;
 }
 
-.glass-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 22px 42px rgba(15, 23, 42, 0.14);
+.section-card {
+    padding: 26px;
+    border-radius: 26px;
+    background: rgba(255,255,255,0.86);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(255,255,255,0.75);
+    margin-top: 18px;
+    margin-bottom: 22px;
+}
+
+.result-box {
+    padding: 22px;
+    border-radius: 22px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+    white-space: pre-wrap;
 }
 
 .card-title {
@@ -88,15 +101,6 @@ st.markdown("""
     line-height: 1.5;
 }
 
-.section-card {
-    padding: 28px;
-    border-radius: 26px;
-    background: rgba(255,255,255,0.82);
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
-    border: 1px solid rgba(255,255,255,0.75);
-    margin-top: 18px;
-}
-
 .status-pill {
     display: inline-block;
     padding: 8px 14px;
@@ -106,6 +110,7 @@ st.markdown("""
     font-weight: 700;
     font-size: 14px;
     margin-right: 8px;
+    margin-bottom: 8px;
 }
 
 .warning-box {
@@ -118,31 +123,47 @@ st.markdown("""
 }
 
 .login-card {
-    max-width: 480px;
-    margin: 40px auto;
+    max-width: 520px;
+    margin: 40px auto 20px auto;
     padding: 34px;
     border-radius: 28px;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.88);
     box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
     border: 1px solid rgba(255,255,255,0.8);
+    text-align: center;
 }
 
-.small-muted {
-    color: #64748b;
-    font-size: 14px;
-}
-
-.result-box {
-    padding: 22px;
-    border-radius: 22px;
-    background: #f8fafc;
+.module-badge {
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.9);
     border: 1px solid #e2e8f0;
+    text-align: center;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ---------------- SESSION STATE ----------------
+def module_header(icon, title, subtitle):
+    st.markdown(f"""
+    <div class="section-card">
+        <h2>{icon} {title}</h2>
+        <p class="card-text">{subtitle}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def show_result(title, content):
+    st.subheader(title)
+    st.markdown(
+        f'<div class="result-box">{content}</div>',
+        unsafe_allow_html=True
+    )
+
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -156,29 +177,22 @@ if "report_history" not in st.session_state:
     st.session_state.report_history = []
 
 
-# ---------------- LOGIN PAGE ----------------
 if not st.session_state.logged_in:
 
     st.markdown("""
     <div class="login-card">
-        <h1 style="color:#0f172a; text-align:center;">🩺 HealthLens AI</h1>
-        <p style="color:#64748b; text-align:center;">
-        Secure access to your AI-powered healthcare assistant.
+        <h1 style="color:#0f172a;">🩺 HealthLens AI</h1>
+        <p style="color:#64748b;">
+        Secure access to your AI-powered multimodal healthcare assistant.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    auth_option = st.selectbox(
-        "Choose Option",
-        ["Login", "Signup"]
-    )
+    auth_option = st.selectbox("Choose Option", ["Login", "Signup"])
 
     username = st.text_input("Username")
 
-    password = st.text_input(
-        "Password",
-        type="password"
-    )
+    password = st.text_input("Password", type="password")
 
     if auth_option == "Signup":
 
@@ -211,7 +225,6 @@ if not st.session_state.logged_in:
     st.stop()
 
 
-# ---------------- SIDEBAR ----------------
 st.sidebar.title("🩺 HealthLens AI")
 st.sidebar.caption("Multimodal GenAI Healthcare Platform")
 
@@ -247,7 +260,6 @@ if st.sidebar.button("Logout", use_container_width=True):
     st.rerun()
 
 
-# ---------------- HERO HEADER ----------------
 st.markdown("""
 <div class="hero-card">
     <div class="hero-title">HealthLens AI</div>
@@ -271,7 +283,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ---------------- HOME ----------------
 if option == "Home":
 
     st.markdown("## Dashboard Overview")
@@ -299,7 +310,7 @@ if option == "Home":
         <div class="glass-card">
             <div class="card-title">🤒 Symptom Analyzer</div>
             <p class="card-text">
-            Enter symptoms and receive a structured AI-based health explanation.
+            Analyze symptoms and receive structured guidance with precautions and doctor questions.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -307,9 +318,9 @@ if option == "Home":
     with col2:
         st.markdown("""
         <div class="glass-card">
-            <div class="card-title">📄 PDF Summarizer</div>
+            <div class="card-title">📄 PDF Report Summarizer</div>
             <p class="card-text">
-            Upload medical reports and understand complex values in simple language.
+            Upload medical reports and convert complex values into simple explanations.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -319,7 +330,7 @@ if option == "Home":
         <div class="glass-card">
             <div class="card-title">💬 Medical Chatbot</div>
             <p class="card-text">
-            Ask healthcare questions with conversation memory support.
+            Ask healthcare questions with memory-enabled conversation support.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -329,9 +340,9 @@ if option == "Home":
     with col4:
         st.markdown("""
         <div class="glass-card">
-            <div class="card-title">📚 RAG Assistant</div>
+            <div class="card-title">📚 RAG Medical Assistant</div>
             <p class="card-text">
-            Answers questions using trusted medical documents stored in the project.
+            Get answers using trusted medical documents stored inside the project knowledge base.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -341,7 +352,7 @@ if option == "Home":
         <div class="glass-card">
             <div class="card-title">🖼️ Skin Image Analyzer</div>
             <p class="card-text">
-            Analyze skin images using multimodal AI with safe educational guidance.
+            Upload skin images for safe educational observations using multimodal AI.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -363,17 +374,28 @@ Downloadable Report
 """)
 
 
-# ---------------- SYMPTOM ANALYZER ----------------
 elif option == "Symptom Analyzer":
 
-    st.markdown("## 🤒 Symptom Analyzer")
+    module_header(
+        "🤒",
+        "Symptom Analyzer",
+        "Describe symptoms and receive structured AI-powered guidance with precautions, red flags, and doctor consultation advice."
+    )
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown('<div class="module-badge">✅ Simple Explanation</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="module-badge">🩺 Precautions</div>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<div class="module-badge">📌 Doctor Questions</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     symptoms = st.text_area(
         "Describe your symptoms",
         placeholder="Example: I have fever, headache and body pain since yesterday...",
-        height=160
+        height=170
     )
 
     if st.button("Analyze Symptoms", use_container_width=True):
@@ -383,20 +405,15 @@ elif option == "Symptom Analyzer":
 
         elif check_emergency(symptoms):
             st.error("Emergency warning: Please seek medical help immediately.")
-            st.session_state.report_history.append(
-                "Emergency symptom warning triggered"
-            )
+            st.session_state.report_history.append("Emergency symptom warning triggered")
 
         else:
             with st.spinner("Analyzing symptoms..."):
                 result = analyze_symptoms(symptoms)
 
-            st.subheader("AI Health Explanation")
-            st.markdown(f'<div class="result-box">{result}</div>', unsafe_allow_html=True)
+            show_result("AI Health Explanation", result)
 
-            st.session_state.report_history.append(
-                "Generated symptom analysis report"
-            )
+            st.session_state.report_history.append("Generated symptom analysis report")
 
             report_content = f"""
 HealthLens AI - Symptom Analysis Report
@@ -423,10 +440,21 @@ It is not a replacement for professional medical advice.
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ---------------- PDF REPORT SUMMARIZER ----------------
 elif option == "PDF Report Summarizer":
 
-    st.markdown("## 📄 PDF Report Summarizer")
+    module_header(
+        "📄",
+        "PDF Medical Report Summarizer",
+        "Upload medical reports and understand key values, findings, and doctor discussion points in simple language."
+    )
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown('<div class="module-badge">📌 Key Findings</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="module-badge">📊 Important Values</div>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<div class="module-badge">🩺 Doctor Points</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
@@ -445,15 +473,13 @@ elif option == "PDF Report Summarizer":
 
             if report_text.strip() == "":
                 st.error("Could not extract text from this PDF.")
+
             else:
                 summary = summarize_report(report_text)
 
-                st.subheader("Report Summary")
-                st.markdown(f'<div class="result-box">{summary}</div>', unsafe_allow_html=True)
+                show_result("Report Summary", summary)
 
-                st.session_state.report_history.append(
-                    "Generated PDF medical report summary"
-                )
+                st.session_state.report_history.append("Generated PDF medical report summary")
 
                 report_content = f"""
 HealthLens AI - Medical Report Summary
@@ -477,10 +503,19 @@ It is not a replacement for professional medical advice.
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ---------------- MEDICAL CHATBOT ----------------
 elif option == "Medical Chatbot":
 
-    st.markdown("## 💬 Medical Chatbot")
+    module_header(
+        "💬",
+        "Medical Chatbot",
+        "Chat with a healthcare assistant that remembers your conversation during the session and responds safely."
+    )
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown('<div class="module-badge">🧠 Memory Enabled</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="module-badge">🛡️ Safe Guidance</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
@@ -511,23 +546,32 @@ elif option == "Medical Chatbot":
             {"role": "assistant", "content": answer}
         )
 
-        st.session_state.report_history.append(
-            "Used medical chatbot"
-        )
+        st.session_state.report_history.append("Used medical chatbot")
 
         st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ---------------- RAG ASSISTANT ----------------
 elif option == "RAG Medical Assistant":
 
-    st.markdown("## 📚 RAG Medical Assistant")
+    module_header(
+        "📚",
+        "RAG Medical Assistant",
+        "Ask health questions answered using trusted local medical documents and vector search."
+    )
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown('<div class="module-badge">📁 Local Docs</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="module-badge">🔍 Vector Search</div>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<div class="module-badge">📌 Source-backed</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
-    st.write("This module answers using your trusted medical knowledge base.")
+    st.write("Build the knowledge base first, then ask questions from trusted documents.")
 
     if st.button("Build / Refresh Knowledge Base", use_container_width=True):
         with st.spinner("Creating medical knowledge base..."):
@@ -549,20 +593,28 @@ elif option == "RAG Medical Assistant":
             with st.spinner("Searching knowledge base..."):
                 answer = rag_answer(question)
 
-            st.subheader("RAG-Based Answer")
-            st.markdown(f'<div class="result-box">{answer}</div>', unsafe_allow_html=True)
+            show_result("RAG-Based Answer", answer)
 
-            st.session_state.report_history.append(
-                "Asked question using RAG medical assistant"
-            )
+            st.session_state.report_history.append("Asked question using RAG medical assistant")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ---------------- SKIN IMAGE ANALYZER ----------------
 elif option == "Skin Image Analyzer":
 
-    st.markdown("## 🖼️ Skin Image Analyzer")
+    module_header(
+        "🖼️",
+        "Skin Image Analyzer",
+        "Upload a skin image and receive safe educational observations with dermatologist consultation guidance."
+    )
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown('<div class="module-badge">🖼️ Image Input</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="module-badge">🔎 Observation</div>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<div class="module-badge">🩺 Dermatologist Guidance</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
@@ -584,12 +636,9 @@ elif option == "Skin Image Analyzer":
             with st.spinner("Analyzing image..."):
                 result = analyze_skin_image(uploaded_image)
 
-            st.subheader("AI Skin Analysis")
-            st.markdown(f'<div class="result-box">{result}</div>', unsafe_allow_html=True)
+            show_result("AI Skin Analysis", result)
 
-            st.session_state.report_history.append(
-                "Generated skin image analysis report"
-            )
+            st.session_state.report_history.append("Generated skin image analysis report")
 
             report_content = f"""
 HealthLens AI - Skin Image Analysis Report
@@ -613,10 +662,13 @@ It is not a replacement for dermatologist consultation.
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ---------------- HISTORY ----------------
 elif option == "History":
 
-    st.markdown("## User Activity History")
+    module_header(
+        "📜",
+        "User Activity History",
+        "Track recent actions performed during this session."
+    )
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
