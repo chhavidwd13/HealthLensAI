@@ -1,4 +1,4 @@
-from modules.gemini_client import gemini_model
+from modules.gemini_client import generate_response
 
 
 def get_memory_response(user_question, chat_history):
@@ -29,6 +29,4 @@ Rules:
 - Recommend doctor consultation when needed
 """
 
-    response = gemini_model.generate_content(prompt)
-
-    return response.text
+    return generate_response(prompt)

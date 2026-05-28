@@ -1,6 +1,5 @@
 from PIL import Image
-
-from modules.gemini_client import gemini_model
+from modules.gemini_client import generate_image_response
 
 
 def analyze_skin_image(uploaded_image):
@@ -13,7 +12,6 @@ You are a healthcare vision assistant.
 Analyze this skin image carefully.
 
 Provide:
-
 1. General Observation
 2. Possible Skin Condition Category
 3. Basic Precautions
@@ -25,8 +23,4 @@ Rules:
 - Keep response safe and educational.
 """
 
-    response = gemini_model.generate_content(
-        [prompt, image]
-    )
-
-    return response.text
+    return generate_image_response(prompt, image)
