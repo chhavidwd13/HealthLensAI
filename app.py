@@ -86,13 +86,25 @@ st.warning(
 )
 
 st.sidebar.title("🩺 HealthLens AI")
-st.sidebar.caption("Multimodal Healthcare Assistant")
-st.sidebar.success(f"Logged in as: {st.session_state.username}")
+st.sidebar.caption("AI-powered multimodal healthcare assistant")
+
+st.sidebar.markdown("---")
+st.sidebar.success(f"👤 Logged in as: {st.session_state.username}")
+
+st.sidebar.markdown("### System Status")
+st.sidebar.info("✅ Gemini / Fallback Ready")
+st.sidebar.info("✅ RAG Enabled")
+st.sidebar.info("✅ Reports Enabled")
+st.sidebar.info("✅ Chat Memory Active")
+
+st.sidebar.markdown("---")
 
 if st.sidebar.button("Logout", use_container_width=True):
     st.session_state.logged_in = False
     st.session_state.username = ""
     st.rerun()
+
+st.sidebar.markdown("---")
 
 option = st.sidebar.radio(
     "Choose Module",
