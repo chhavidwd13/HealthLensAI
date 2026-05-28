@@ -17,6 +17,132 @@ st.set_page_config(
     layout="wide"
 )
 
+# ---------------- CUSTOM UI CSS ----------------
+st.markdown("""
+<style>
+.stApp {
+    background: linear-gradient(135deg, #eef7ff 0%, #f8fbff 45%, #ecfff7 100%);
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f172a 0%, #113b5c 55%, #0f766e 100%);
+}
+
+[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+.hero-card {
+    padding: 34px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(255,255,255,0.7);
+    margin-bottom: 25px;
+}
+
+.hero-title {
+    font-size: 44px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.hero-subtitle {
+    font-size: 18px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.glass-card {
+    padding: 24px;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 16px 35px rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(255,255,255,0.75);
+    min-height: 160px;
+    transition: 0.2s ease-in-out;
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 42px rgba(15, 23, 42, 0.14);
+}
+
+.card-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.card-text {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.section-card {
+    padding: 28px;
+    border-radius: 26px;
+    background: rgba(255,255,255,0.82);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(255,255,255,0.75);
+    margin-top: 18px;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #166534;
+    font-weight: 700;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.warning-box {
+    padding: 16px 20px;
+    border-radius: 18px;
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fed7aa;
+    margin-bottom: 20px;
+}
+
+.login-card {
+    max-width: 480px;
+    margin: 40px auto;
+    padding: 34px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+    border: 1px solid rgba(255,255,255,0.8);
+}
+
+.small-muted {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.result-box {
+    padding: 22px;
+    border-radius: 22px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ---------------- SESSION STATE ----------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -30,9 +156,17 @@ if "report_history" not in st.session_state:
     st.session_state.report_history = []
 
 
+# ---------------- LOGIN PAGE ----------------
 if not st.session_state.logged_in:
 
-    st.title("🔐 HealthLens AI Login")
+    st.markdown("""
+    <div class="login-card">
+        <h1 style="color:#0f172a; text-align:center;">🩺 HealthLens AI</h1>
+        <p style="color:#64748b; text-align:center;">
+        Secure access to your AI-powered healthcare assistant.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
     auth_option = st.selectbox(
         "Choose Option",
@@ -77,37 +211,23 @@ if not st.session_state.logged_in:
     st.stop()
 
 
-st.title("🩺 HealthLens AI")
-st.subheader("Multimodal Healthcare Assistant")
-
-st.warning(
-    "This tool is for educational use only. "
-    "It is not a replacement for professional medical advice."
-)
-
+# ---------------- SIDEBAR ----------------
 st.sidebar.title("🩺 HealthLens AI")
-st.sidebar.caption("AI-powered multimodal healthcare assistant")
+st.sidebar.caption("Multimodal GenAI Healthcare Platform")
 
 st.sidebar.markdown("---")
-st.sidebar.success(f"👤 Logged in as: {st.session_state.username}")
+st.sidebar.success(f"👤 {st.session_state.username}")
 
 st.sidebar.markdown("### System Status")
 st.sidebar.info("✅ Gemini / Fallback Ready")
 st.sidebar.info("✅ RAG Enabled")
-st.sidebar.info("✅ Reports Enabled")
 st.sidebar.info("✅ Chat Memory Active")
-
-st.sidebar.markdown("---")
-
-if st.sidebar.button("Logout", use_container_width=True):
-    st.session_state.logged_in = False
-    st.session_state.username = ""
-    st.rerun()
+st.sidebar.info("✅ Report Downloads")
 
 st.sidebar.markdown("---")
 
 option = st.sidebar.radio(
-    "Choose Module",
+    "Navigation",
     [
         "Home",
         "Symptom Analyzer",
@@ -119,15 +239,42 @@ option = st.sidebar.radio(
     ]
 )
 
+st.sidebar.markdown("---")
 
+if st.sidebar.button("Logout", use_container_width=True):
+    st.session_state.logged_in = False
+    st.session_state.username = ""
+    st.rerun()
+
+
+# ---------------- HERO HEADER ----------------
+st.markdown("""
+<div class="hero-card">
+    <div class="hero-title">HealthLens AI</div>
+    <div class="hero-subtitle">
+        A modern multimodal healthcare assistant powered by Generative AI, RAG,
+        PDF intelligence, chatbot memory, and skin image understanding.
+    </div>
+    <br>
+    <span class="status-pill">GenAI</span>
+    <span class="status-pill">RAG</span>
+    <span class="status-pill">Multimodal</span>
+    <span class="status-pill">Healthcare AI</span>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="warning-box">
+    ⚠️ This tool is for educational and informational use only. 
+    It is not a replacement for professional medical advice, diagnosis, or treatment.
+</div>
+""", unsafe_allow_html=True)
+
+
+# ---------------- HOME ----------------
 if option == "Home":
 
-    st.header("Welcome to HealthLens AI")
-
-    st.write("""
-    HealthLens AI is a multimodal healthcare assistant that combines
-    Generative AI, RAG, PDF processing, chatbot memory, and image understanding.
-    """)
+    st.markdown("## Dashboard Overview")
 
     col1, col2, col3, col4 = st.columns(4)
 
@@ -143,28 +290,63 @@ if option == "Home":
     with col4:
         st.metric("RAG Support", "Enabled")
 
-    st.subheader("Available Modules")
+    st.markdown("## Core Modules")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.info("🤒 Symptom Analyzer\n\nAnalyze symptoms using Gemini AI.")
+        st.markdown("""
+        <div class="glass-card">
+            <div class="card-title">🤒 Symptom Analyzer</div>
+            <p class="card-text">
+            Enter symptoms and receive a structured AI-based health explanation.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        st.info("📄 PDF Summarizer\n\nUpload medical reports and get simple explanation.")
+        st.markdown("""
+        <div class="glass-card">
+            <div class="card-title">📄 PDF Summarizer</div>
+            <p class="card-text">
+            Upload medical reports and understand complex values in simple language.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col3:
-        st.info("💬 Medical Chatbot\n\nChat with healthcare AI with memory.")
+        st.markdown("""
+        <div class="glass-card">
+            <div class="card-title">💬 Medical Chatbot</div>
+            <p class="card-text">
+            Ask healthcare questions with conversation memory support.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     col4, col5 = st.columns(2)
 
     with col4:
-        st.info("📚 RAG Assistant\n\nAnswers using trusted medical documents.")
+        st.markdown("""
+        <div class="glass-card">
+            <div class="card-title">📚 RAG Assistant</div>
+            <p class="card-text">
+            Answers questions using trusted medical documents stored in the project.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col5:
-        st.info("🖼️ Skin Image Analyzer\n\nAnalyze skin images using multimodal AI.")
+        st.markdown("""
+        <div class="glass-card">
+            <div class="card-title">🖼️ Skin Image Analyzer</div>
+            <p class="card-text">
+            Analyze skin images using multimodal AI with safe educational guidance.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.subheader("System Workflow")
+    st.markdown("## System Workflow")
 
     st.code("""
 User Input
@@ -181,13 +363,17 @@ Downloadable Report
 """)
 
 
+# ---------------- SYMPTOM ANALYZER ----------------
 elif option == "Symptom Analyzer":
 
-    st.header("🤒 Symptom Analyzer")
+    st.markdown("## 🤒 Symptom Analyzer")
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     symptoms = st.text_area(
-        "Describe your symptoms:",
-        placeholder="Example: I have fever, headache and body pain since yesterday..."
+        "Describe your symptoms",
+        placeholder="Example: I have fever, headache and body pain since yesterday...",
+        height=160
     )
 
     if st.button("Analyze Symptoms", use_container_width=True):
@@ -206,7 +392,7 @@ elif option == "Symptom Analyzer":
                 result = analyze_symptoms(symptoms)
 
             st.subheader("AI Health Explanation")
-            st.write(result)
+            st.markdown(f'<div class="result-box">{result}</div>', unsafe_allow_html=True)
 
             st.session_state.report_history.append(
                 "Generated symptom analysis report"
@@ -234,10 +420,15 @@ It is not a replacement for professional medical advice.
                 use_container_width=True
             )
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
+
+# ---------------- PDF REPORT SUMMARIZER ----------------
 elif option == "PDF Report Summarizer":
 
-    st.header("📄 PDF Report Summarizer")
+    st.markdown("## 📄 PDF Report Summarizer")
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     uploaded_file = st.file_uploader(
         "Upload medical report PDF",
@@ -258,7 +449,7 @@ elif option == "PDF Report Summarizer":
                 summary = summarize_report(report_text)
 
                 st.subheader("Report Summary")
-                st.write(summary)
+                st.markdown(f'<div class="result-box">{summary}</div>', unsafe_allow_html=True)
 
                 st.session_state.report_history.append(
                     "Generated PDF medical report summary"
@@ -283,10 +474,15 @@ It is not a replacement for professional medical advice.
                     use_container_width=True
                 )
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
+
+# ---------------- MEDICAL CHATBOT ----------------
 elif option == "Medical Chatbot":
 
-    st.header("💬 Medical Chatbot")
+    st.markdown("## 💬 Medical Chatbot")
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     if st.button("Clear Chat History", use_container_width=True):
         st.session_state.chat_history = []
@@ -321,10 +517,15 @@ elif option == "Medical Chatbot":
 
         st.rerun()
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
+
+# ---------------- RAG ASSISTANT ----------------
 elif option == "RAG Medical Assistant":
 
-    st.header("📚 RAG Medical Assistant")
+    st.markdown("## 📚 RAG Medical Assistant")
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     st.write("This module answers using your trusted medical knowledge base.")
 
@@ -335,7 +536,7 @@ elif option == "RAG Medical Assistant":
         st.success(message)
 
     question = st.text_input(
-        "Ask a question from medical knowledge base:",
+        "Ask a question from medical knowledge base",
         placeholder="Example: What are warning signs of dengue?"
     )
 
@@ -349,16 +550,21 @@ elif option == "RAG Medical Assistant":
                 answer = rag_answer(question)
 
             st.subheader("RAG-Based Answer")
-            st.write(answer)
+            st.markdown(f'<div class="result-box">{answer}</div>', unsafe_allow_html=True)
 
             st.session_state.report_history.append(
                 "Asked question using RAG medical assistant"
             )
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
+
+# ---------------- SKIN IMAGE ANALYZER ----------------
 elif option == "Skin Image Analyzer":
 
-    st.header("🖼️ Skin Image Analyzer")
+    st.markdown("## 🖼️ Skin Image Analyzer")
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     uploaded_image = st.file_uploader(
         "Upload skin image",
@@ -379,7 +585,7 @@ elif option == "Skin Image Analyzer":
                 result = analyze_skin_image(uploaded_image)
 
             st.subheader("AI Skin Analysis")
-            st.write(result)
+            st.markdown(f'<div class="result-box">{result}</div>', unsafe_allow_html=True)
 
             st.session_state.report_history.append(
                 "Generated skin image analysis report"
@@ -404,10 +610,15 @@ It is not a replacement for dermatologist consultation.
                 use_container_width=True
             )
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
+
+# ---------------- HISTORY ----------------
 elif option == "History":
 
-    st.header("User Activity History")
+    st.markdown("## User Activity History")
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     if not st.session_state.report_history:
         st.info("No activity yet.")
@@ -418,3 +629,5 @@ elif option == "History":
     if st.button("Clear History", use_container_width=True):
         st.session_state.report_history = []
         st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)
