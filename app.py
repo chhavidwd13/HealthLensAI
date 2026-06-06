@@ -7,6 +7,7 @@ from modules.rag_engine import create_vector_db, rag_answer
 from modules.image_predictor import analyze_skin_image
 from modules.memory_chatbot import get_memory_response
 from modules.auth import create_users_table, signup_user, login_user
+from modules.report_generator import create_pdf_report
 
 
 create_users_table()
@@ -22,55 +23,35 @@ st.markdown("""
 .stApp {
     background: linear-gradient(135deg, #eef7ff 0%, #f8fbff 45%, #ecfff7 100%);
 }
-
 .block-container {
     padding-top: 2rem;
     padding-bottom: 3rem;
 }
-
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #0f172a 0%, #113b5c 55%, #0f766e 100%);
 }
-
 [data-testid="stSidebar"] * {
     color: white !important;
 }
-
 .hero-card {
     padding: 34px;
     border-radius: 28px;
     background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(16px);
     box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
     border: 1px solid rgba(255,255,255,0.7);
     margin-bottom: 25px;
 }
-
 .hero-title {
     font-size: 44px;
     font-weight: 800;
     color: #0f172a;
-    margin-bottom: 8px;
 }
-
 .hero-subtitle {
     font-size: 18px;
     color: #475569;
     line-height: 1.6;
 }
-
-.glass-card {
-    padding: 24px;
-    border-radius: 24px;
-    background: rgba(255,255,255,0.82);
-    backdrop-filter: blur(14px);
-    box-shadow: 0 16px 35px rgba(15, 23, 42, 0.10);
-    border: 1px solid rgba(255,255,255,0.75);
-    min-height: 150px;
-    margin-bottom: 18px;
-}
-
-.section-card {
+.glass-card, .section-card {
     padding: 26px;
     border-radius: 26px;
     background: rgba(255,255,255,0.86);
@@ -79,7 +60,6 @@ st.markdown("""
     margin-top: 18px;
     margin-bottom: 22px;
 }
-
 .result-box {
     padding: 22px;
     border-radius: 22px;
@@ -88,19 +68,16 @@ st.markdown("""
     color: #0f172a;
     white-space: pre-wrap;
 }
-
 .card-title {
     font-size: 22px;
     font-weight: 700;
     color: #0f172a;
 }
-
 .card-text {
     color: #64748b;
     font-size: 15px;
     line-height: 1.5;
 }
-
 .status-pill {
     display: inline-block;
     padding: 8px 14px;
@@ -110,9 +87,7 @@ st.markdown("""
     font-weight: 700;
     font-size: 14px;
     margin-right: 8px;
-    margin-bottom: 8px;
 }
-
 .warning-box {
     padding: 16px 20px;
     border-radius: 18px;
@@ -121,7 +96,6 @@ st.markdown("""
     border: 1px solid #fed7aa;
     margin-bottom: 20px;
 }
-
 .login-card {
     max-width: 520px;
     margin: 40px auto 20px auto;
@@ -129,10 +103,8 @@ st.markdown("""
     border-radius: 28px;
     background: rgba(255,255,255,0.88);
     box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
-    border: 1px solid rgba(255,255,255,0.8);
     text-align: center;
 }
-
 .module-badge {
     padding: 16px;
     border-radius: 18px;
@@ -158,10 +130,7 @@ def module_header(icon, title, subtitle):
 
 def show_result(title, content):
     st.subheader(title)
-    st.markdown(
-        f'<div class="result-box">{content}</div>',
-        unsafe_allow_html=True
-    )
+    st.markdown(f'<div class="result-box">{content}</div>', unsafe_allow_html=True)
 
 
 if "logged_in" not in st.session_state:
@@ -189,28 +158,20 @@ if not st.session_state.logged_in:
     """, unsafe_allow_html=True)
 
     auth_option = st.selectbox("Choose Option", ["Login", "Signup"])
-
     username = st.text_input("Username")
-
     password = st.text_input("Password", type="password")
 
     if auth_option == "Signup":
-
         if st.button("Create Account", use_container_width=True):
-
             if username.strip() == "" or password.strip() == "":
                 st.error("Please enter username and password.")
-
             elif signup_user(username, password):
                 st.success("Account created successfully. Now login.")
-
             else:
                 st.error("Username already exists.")
 
     else:
-
         if st.button("Login", use_container_width=True):
-
             user = login_user(username, password)
 
             if user:
@@ -218,7 +179,6 @@ if not st.session_state.logged_in:
                 st.session_state.username = username
                 st.success("Login successful.")
                 st.rerun()
-
             else:
                 st.error("Invalid username or password.")
 
@@ -235,7 +195,7 @@ st.sidebar.markdown("### System Status")
 st.sidebar.info("✅ Gemini / Fallback Ready")
 st.sidebar.info("✅ RAG Enabled")
 st.sidebar.info("✅ Chat Memory Active")
-st.sidebar.info("✅ Report Downloads")
+st.sidebar.info("✅ PDF Reports")
 
 st.sidebar.markdown("---")
 
@@ -291,13 +251,10 @@ if option == "Home":
 
     with col1:
         st.metric("AI Modules", "5")
-
     with col2:
         st.metric("Input Types", "4")
-
     with col3:
         st.metric("Safety Layer", "Active")
-
     with col4:
         st.metric("RAG Support", "Enabled")
 
@@ -309,9 +266,7 @@ if option == "Home":
         st.markdown("""
         <div class="glass-card">
             <div class="card-title">🤒 Symptom Analyzer</div>
-            <p class="card-text">
-            Analyze symptoms and receive structured guidance with precautions and doctor questions.
-            </p>
+            <p class="card-text">Analyze symptoms and receive structured healthcare guidance.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -319,9 +274,7 @@ if option == "Home":
         st.markdown("""
         <div class="glass-card">
             <div class="card-title">📄 PDF Report Summarizer</div>
-            <p class="card-text">
-            Upload medical reports and convert complex values into simple explanations.
-            </p>
+            <p class="card-text">Upload medical reports and understand them in simple language.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -329,9 +282,7 @@ if option == "Home":
         st.markdown("""
         <div class="glass-card">
             <div class="card-title">💬 Medical Chatbot</div>
-            <p class="card-text">
-            Ask healthcare questions with memory-enabled conversation support.
-            </p>
+            <p class="card-text">Ask healthcare questions with memory-enabled chat support.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -341,9 +292,7 @@ if option == "Home":
         st.markdown("""
         <div class="glass-card">
             <div class="card-title">📚 RAG Medical Assistant</div>
-            <p class="card-text">
-            Get answers using trusted medical documents stored inside the project knowledge base.
-            </p>
+            <p class="card-text">Get answers using trusted medical documents.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -351,9 +300,7 @@ if option == "Home":
         st.markdown("""
         <div class="glass-card">
             <div class="card-title">🖼️ Skin Image Analyzer</div>
-            <p class="card-text">
-            Upload skin images for safe educational observations using multimodal AI.
-            </p>
+            <p class="card-text">Upload skin images for safe educational observations.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -370,7 +317,7 @@ Gemini AI + RAG Engine
    ↓
 Structured Healthcare Response
    ↓
-Downloadable Report
+Downloadable PDF Report
 """)
 
 
@@ -412,28 +359,19 @@ elif option == "Symptom Analyzer":
                 result = analyze_symptoms(symptoms)
 
             show_result("AI Health Explanation", result)
-
             st.session_state.report_history.append("Generated symptom analysis report")
 
-            report_content = f"""
-HealthLens AI - Symptom Analysis Report
-
-User Symptoms:
-{symptoms}
-
-AI Health Explanation:
-{result}
-
-Disclaimer:
-This report is AI-generated for educational purposes only.
-It is not a replacement for professional medical advice.
-"""
+            pdf_data = create_pdf_report(
+                st.session_state.username,
+                "Symptom Analysis Report",
+                f"User Symptoms:\n{symptoms}\n\nAI Health Explanation:\n{result}"
+            )
 
             st.download_button(
-                "Download Symptom Report",
-                report_content,
-                "symptom_report.txt",
-                "text/plain",
+                label="📄 Download PDF Report",
+                data=pdf_data,
+                file_name="symptom_report.pdf",
+                mime="application/pdf",
                 use_container_width=True
             )
 
@@ -458,10 +396,7 @@ elif option == "PDF Report Summarizer":
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader(
-        "Upload medical report PDF",
-        type=["pdf"]
-    )
+    uploaded_file = st.file_uploader("Upload medical report PDF", type=["pdf"])
 
     if uploaded_file is not None:
         st.success("PDF uploaded successfully.")
@@ -478,25 +413,19 @@ elif option == "PDF Report Summarizer":
                 summary = summarize_report(report_text)
 
                 show_result("Report Summary", summary)
-
                 st.session_state.report_history.append("Generated PDF medical report summary")
 
-                report_content = f"""
-HealthLens AI - Medical Report Summary
-
-AI Summary:
-{summary}
-
-Disclaimer:
-This summary is AI-generated for educational purposes only.
-It is not a replacement for professional medical advice.
-"""
+                pdf_data = create_pdf_report(
+                    st.session_state.username,
+                    "Medical Report Summary",
+                    summary
+                )
 
                 st.download_button(
-                    "Download Medical Summary",
-                    report_content,
-                    "medical_report_summary.txt",
-                    "text/plain",
+                    label="📄 Download PDF Summary",
+                    data=pdf_data,
+                    file_name="medical_summary.pdf",
+                    mime="application/pdf",
                     use_container_width=True
                 )
 
@@ -532,20 +461,12 @@ elif option == "Medical Chatbot":
     user_question = st.chat_input("Ask a health-related question...")
 
     if user_question:
-        st.session_state.chat_history.append(
-            {"role": "user", "content": user_question}
-        )
+        st.session_state.chat_history.append({"role": "user", "content": user_question})
 
         with st.spinner("Thinking..."):
-            answer = get_memory_response(
-                user_question,
-                st.session_state.chat_history
-            )
+            answer = get_memory_response(user_question, st.session_state.chat_history)
 
-        st.session_state.chat_history.append(
-            {"role": "assistant", "content": answer}
-        )
-
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
         st.session_state.report_history.append("Used medical chatbot")
 
         st.rerun()
@@ -576,7 +497,6 @@ elif option == "RAG Medical Assistant":
     if st.button("Build / Refresh Knowledge Base", use_container_width=True):
         with st.spinner("Creating medical knowledge base..."):
             message = create_vector_db()
-
         st.success(message)
 
     question = st.text_input(
@@ -594,7 +514,6 @@ elif option == "RAG Medical Assistant":
                 answer = rag_answer(question)
 
             show_result("RAG-Based Answer", answer)
-
             st.session_state.report_history.append("Asked question using RAG medical assistant")
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -618,18 +537,11 @@ elif option == "Skin Image Analyzer":
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
-    uploaded_image = st.file_uploader(
-        "Upload skin image",
-        type=["jpg", "jpeg", "png"]
-    )
+    uploaded_image = st.file_uploader("Upload skin image", type=["jpg", "jpeg", "png"])
 
     if uploaded_image is not None:
 
-        st.image(
-            uploaded_image,
-            caption="Uploaded Skin Image",
-            use_container_width=True
-        )
+        st.image(uploaded_image, caption="Uploaded Skin Image", use_container_width=True)
 
         if st.button("Analyze Skin Image", use_container_width=True):
 
@@ -637,25 +549,19 @@ elif option == "Skin Image Analyzer":
                 result = analyze_skin_image(uploaded_image)
 
             show_result("AI Skin Analysis", result)
-
             st.session_state.report_history.append("Generated skin image analysis report")
 
-            report_content = f"""
-HealthLens AI - Skin Image Analysis Report
-
-AI Skin Analysis:
-{result}
-
-Disclaimer:
-This report is AI-generated for educational purposes only.
-It is not a replacement for dermatologist consultation.
-"""
+            pdf_data = create_pdf_report(
+                st.session_state.username,
+                "Skin Image Analysis Report",
+                result
+            )
 
             st.download_button(
-                "Download Skin Analysis Report",
-                report_content,
-                "skin_analysis_report.txt",
-                "text/plain",
+                label="📄 Download PDF Report",
+                data=pdf_data,
+                file_name="skin_analysis.pdf",
+                mime="application/pdf",
                 use_container_width=True
             )
 
