@@ -8,7 +8,7 @@ from modules.image_predictor import analyze_skin_image
 from modules.memory_chatbot import get_memory_response
 from modules.auth import create_users_table, signup_user, login_user
 from modules.report_generator import create_pdf_report
-
+from modules.analytics import get_dashboard_stats
 
 create_users_table()
 
@@ -243,20 +243,21 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-if option == "Home":
+stats = get_dashboard_stats(st.session_state.report_history)
 
-    st.markdown("## Dashboard Overview")
+col1, col2, col3, col4 = st.columns(4)
 
-    col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Reports Generated", stats["reports"])
 
-    with col1:
-        st.metric("AI Modules", "5")
-    with col2:
-        st.metric("Input Types", "4")
-    with col3:
-        st.metric("Safety Layer", "Active")
-    with col4:
-        st.metric("RAG Support", "Enabled")
+with col2:
+    st.metric("Chat Queries", stats["chatbot"])
+
+with col3:
+    st.metric("RAG Queries", stats["rag"])
+
+with col4:
+    st.metric("Image Analyses", stats["image"])
 
     st.markdown("## Core Modules")
 
