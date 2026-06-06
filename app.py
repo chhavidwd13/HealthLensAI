@@ -9,6 +9,7 @@ from modules.memory_chatbot import get_memory_response
 from modules.auth import create_users_table, signup_user, login_user
 from modules.report_generator import create_pdf_report
 from modules.analytics import get_dashboard_stats
+from modules.health_dashboard import get_health_dashboard_data
 
 create_users_table()
 
@@ -208,7 +209,9 @@ option = st.sidebar.radio(
         "Medical Chatbot",
         "RAG Medical Assistant",
         "Skin Image Analyzer",
+        "Health Dashboard",
         "History"
+        
     ]
 )
 
@@ -565,6 +568,73 @@ elif option == "Skin Image Analyzer":
                 mime="application/pdf",
                 use_container_width=True
             )
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+elif option == "Health Dashboard":
+
+    module_header(
+        "📊",
+        "Health Dashboard",
+        "View a summary of your recent AI healthcare activity during this session."
+    )
+
+    dashboard_data = get_health_dashboard_data(
+        st.session_state.report_history
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric(
+            "Total Activities",
+            dashboard_data["total_activities"]
+        )
+
+    with col2:
+        st.metric(
+            "Symptom Reports",
+            dashboard_data["symptom_reports"]
+        )
+
+    with col3:
+        st.metric(
+            "PDF Summaries",
+            dashboard_data["pdf_reports"]
+        )
+
+    col4, col5, col6 = st.columns(3)
+
+    with col4:
+        st.metric(
+            "Chatbot Queries",
+            dashboard_data["chatbot_queries"]
+        )
+
+    with col5:
+        st.metric(
+            "RAG Queries",
+            dashboard_data["rag_queries"]
+        )
+
+    with col6:
+        st.metric(
+            "Skin Reports",
+            dashboard_data["skin_reports"]
+        )
+
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+
+    st.subheader("Recent Activity")
+
+    if not st.session_state.report_history:
+        st.info("No activity yet.")
+    else:
+        for index, item in enumerate(
+            st.session_state.report_history[-5:],
+            start=1
+        ):
+            st.write(f"{index}. {item}")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
