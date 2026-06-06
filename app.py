@@ -10,8 +10,11 @@ from modules.auth import create_users_table, signup_user, login_user
 from modules.report_generator import create_pdf_report
 from modules.analytics import get_dashboard_stats
 from modules.health_dashboard import get_health_dashboard_data
+from modules.history_db import create_history_table, save_activity, get_user_history
+
 
 create_users_table()
+create_history_table()
 
 st.set_page_config(
     page_title="HealthLens AI",
@@ -134,6 +137,11 @@ def show_result(title, content):
     st.markdown(f'<div class="result-box">{content}</div>', unsafe_allow_html=True)
 
 
+def log_activity(activity):
+    st.session_state.report_history.append(activity)
+    save_activity(st.session_state.username, activity)
+
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -178,6 +186,12 @@ if not st.session_state.logged_in:
             if user:
                 st.session_state.logged_in = True
                 st.session_state.username = username
+
+                saved_history = get_user_history(username)
+                st.session_state.report_history = list(
+                    reversed([item[0] for item in saved_history])
+                )
+
                 st.success("Login successful.")
                 st.rerun()
             else:
@@ -197,6 +211,7 @@ st.sidebar.info("✅ Gemini / Fallback Ready")
 st.sidebar.info("✅ RAG Enabled")
 st.sidebar.info("✅ Chat Memory Active")
 st.sidebar.info("✅ PDF Reports")
+st.sidebar.info("✅ Persistent History")
 
 st.sidebar.markdown("---")
 
@@ -211,7 +226,6 @@ option = st.sidebar.radio(
         "Skin Image Analyzer",
         "Health Dashboard",
         "History"
-        
     ]
 )
 
@@ -220,6 +234,7 @@ st.sidebar.markdown("---")
 if st.sidebar.button("Logout", use_container_width=True):
     st.session_state.logged_in = False
     st.session_state.username = ""
+    st.session_state.chat_history = []
     st.rerun()
 
 
@@ -246,21 +261,25 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-stats = get_dashboard_stats(st.session_state.report_history)
+if option == "Home":
 
-col1, col2, col3, col4 = st.columns(4)
+    st.markdown("## Dashboard Overview")
 
-with col1:
-    st.metric("Reports Generated", stats["reports"])
+    stats = get_dashboard_stats(st.session_state.report_history)
 
-with col2:
-    st.metric("Chat Queries", stats["chatbot"])
+    col1, col2, col3, col4 = st.columns(4)
 
-with col3:
-    st.metric("RAG Queries", stats["rag"])
+    with col1:
+        st.metric("Reports Generated", stats["reports"])
 
-with col4:
-    st.metric("Image Analyses", stats["image"])
+    with col2:
+        st.metric("Chat Queries", stats["chatbot"])
+
+    with col3:
+        st.metric("RAG Queries", stats["rag"])
+
+    with col4:
+        st.metric("Image Analyses", stats["image"])
 
     st.markdown("## Core Modules")
 
@@ -356,14 +375,14 @@ elif option == "Symptom Analyzer":
 
         elif check_emergency(symptoms):
             st.error("Emergency warning: Please seek medical help immediately.")
-            st.session_state.report_history.append("Emergency symptom warning triggered")
+            log_activity("Emergency symptom warning triggered")
 
         else:
             with st.spinner("Analyzing symptoms..."):
                 result = analyze_symptoms(symptoms)
 
             show_result("AI Health Explanation", result)
-            st.session_state.report_history.append("Generated symptom analysis report")
+            log_activity("Generated symptom analysis report")
 
             pdf_data = create_pdf_report(
                 st.session_state.username,
@@ -417,7 +436,7 @@ elif option == "PDF Report Summarizer":
                 summary = summarize_report(report_text)
 
                 show_result("Report Summary", summary)
-                st.session_state.report_history.append("Generated PDF medical report summary")
+                log_activity("Generated PDF medical report summary")
 
                 pdf_data = create_pdf_report(
                     st.session_state.username,
@@ -471,7 +490,7 @@ elif option == "Medical Chatbot":
             answer = get_memory_response(user_question, st.session_state.chat_history)
 
         st.session_state.chat_history.append({"role": "assistant", "content": answer})
-        st.session_state.report_history.append("Used medical chatbot")
+        log_activity("Used medical chatbot")
 
         st.rerun()
 
@@ -518,7 +537,7 @@ elif option == "RAG Medical Assistant":
                 answer = rag_answer(question)
 
             show_result("RAG-Based Answer", answer)
-            st.session_state.report_history.append("Asked question using RAG medical assistant")
+            log_activity("Asked question using RAG medical assistant")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -553,7 +572,7 @@ elif option == "Skin Image Analyzer":
                 result = analyze_skin_image(uploaded_image)
 
             show_result("AI Skin Analysis", result)
-            st.session_state.report_history.append("Generated skin image analysis report")
+            log_activity("Generated skin image analysis report")
 
             pdf_data = create_pdf_report(
                 st.session_state.username,
@@ -571,57 +590,38 @@ elif option == "Skin Image Analyzer":
 
     st.markdown('</div>', unsafe_allow_html=True)
 
+
 elif option == "Health Dashboard":
 
     module_header(
         "📊",
         "Health Dashboard",
-        "View a summary of your recent AI healthcare activity during this session."
+        "View a summary of your recent AI healthcare activity."
     )
 
-    dashboard_data = get_health_dashboard_data(
-        st.session_state.report_history
-    )
+    dashboard_data = get_health_dashboard_data(st.session_state.report_history)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric(
-            "Total Activities",
-            dashboard_data["total_activities"]
-        )
+        st.metric("Total Activities", dashboard_data["total_activities"])
 
     with col2:
-        st.metric(
-            "Symptom Reports",
-            dashboard_data["symptom_reports"]
-        )
+        st.metric("Symptom Reports", dashboard_data["symptom_reports"])
 
     with col3:
-        st.metric(
-            "PDF Summaries",
-            dashboard_data["pdf_reports"]
-        )
+        st.metric("PDF Summaries", dashboard_data["pdf_reports"])
 
     col4, col5, col6 = st.columns(3)
 
     with col4:
-        st.metric(
-            "Chatbot Queries",
-            dashboard_data["chatbot_queries"]
-        )
+        st.metric("Chatbot Queries", dashboard_data["chatbot_queries"])
 
     with col5:
-        st.metric(
-            "RAG Queries",
-            dashboard_data["rag_queries"]
-        )
+        st.metric("RAG Queries", dashboard_data["rag_queries"])
 
     with col6:
-        st.metric(
-            "Skin Reports",
-            dashboard_data["skin_reports"]
-        )
+        st.metric("Skin Reports", dashboard_data["skin_reports"])
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
@@ -630,10 +630,7 @@ elif option == "Health Dashboard":
     if not st.session_state.report_history:
         st.info("No activity yet.")
     else:
-        for index, item in enumerate(
-            st.session_state.report_history[-5:],
-            start=1
-        ):
+        for index, item in enumerate(st.session_state.report_history[-5:], start=1):
             st.write(f"{index}. {item}")
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -644,7 +641,7 @@ elif option == "History":
     module_header(
         "📜",
         "User Activity History",
-        "Track recent actions performed during this session."
+        "Your activity is saved using SQLite and remains available after login."
     )
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
@@ -655,8 +652,6 @@ elif option == "History":
         for index, item in enumerate(st.session_state.report_history, start=1):
             st.write(f"{index}. {item}")
 
-    if st.button("Clear History", use_container_width=True):
-        st.session_state.report_history = []
-        st.rerun()
+    st.info("Persistent history is enabled. Activities remain saved after logout and restart.")
 
     st.markdown('</div>', unsafe_allow_html=True)
